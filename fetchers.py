@@ -1,11 +1,13 @@
-import aiohttp
-import asyncio
-import os
 import base64
-from dotenv import load_dotenv
+import os
 import time
+import csv
+import asyncio
+import aiohttp
+from dotenv import load_dotenv
 
 from parsers import parse_user_repos
+from processing import get_text_stats, perform_topic_modeling, extract_keywords
 
 # Load GitHub token for authorization
 load_dotenv('secrets.env')
@@ -79,6 +81,8 @@ async def fetch_file_content(session, owner, repo, file_path):
     return None
 
 
+# Assuming you have already defined fetch_user_repos, parse_user_repos, etc.
+
 async def fetch_repo_data(username):
     async with aiohttp.ClientSession(headers=headers) as session:
         user_repos = await fetch_user_repos(username)
@@ -108,10 +112,67 @@ async def fetch_repo_data(username):
                 ]
                 repo_data = await asyncio.gather(*tasks)
 
-            filtered_repo["repo_data"] = repo_data
+            # Process repository data with text analysis (Sentiment, Topics, Keywords)
+            processed_data = []
+            for content in repo_data:
+                if content:  # Only process non-empty content
+                    stats = get_text_stats(content)  # Sentiment analysis, word count, etc.
+                    topics = perform_topic_modeling([content])  # Topic modeling
+                    keywords = extract_keywords([content])  # TF-IDF keyword extraction
+
+                    # Print the analysis results for debugging
+                    print(f"Repository: {repo_name}")
+                    print("Stats:", stats)
+                    print("Topics:", topics)
+                    print("Keywords:", keywords)
+
+                    # Append processed data to filtered_repo
+                    processed_data.append({
+                        "content": content,
+                        "word_count": stats.get('word_count', ''),
+                        "sentence_count": stats.get('sentence_count', ''),
+                        "sentiment": stats.get('sentiment', ''),
+                        "topics": ', '.join([str(topic) for topic in topics]),
+                        "keywords": ', '.join([str(keyword) for keyword in keywords])
+                    })
+
+            filtered_repo["repo_data"] = processed_data  # Attach processed data to the repo
             filtered_repos.append(filtered_repo)
 
+        # Save the data to CSV
+        save_to_csv(filtered_repos, username + "_analysis")
         return filtered_repos
+
+
+# Save the filtered repository data to a CSV file
+def save_to_csv(filtered_repos, csv_file_name):
+    # Flatten the data
+    flat_data = []
+    for repo in filtered_repos:
+        for repo_data in repo.get("repo_data", []):
+            flat_data.append({
+                "repo_name": repo.get("name"),
+                "languages": repo.get("languages"),
+                # "readme": repo.get("readme"),
+                "word_count": repo_data["word_count"],
+                "sentence_count": repo_data["sentence_count"],
+                "sentiment": repo_data["sentiment"],
+                "topics": repo_data["topics"],
+                "keywords": repo_data["keywords"]
+            })
+
+    # Write data to CSV
+    keys = flat_data[0].keys() if flat_data else []
+    with open(csv_file_name + '.csv', mode='w', newline='', encoding='utf-8') as file:
+        writer = csv.DictWriter(file, fieldnames=keys)
+        writer.writeheader()
+        writer.writerows(flat_data)
+
+    print("Data saved to" + csv_file_name + ".csv")
+
+
+# Example usage:
+# asyncio.run(fetch_repo_data('FarisMuhovic'))
 
 
 async def fetch_repo_commits(session, username, repo_name):
