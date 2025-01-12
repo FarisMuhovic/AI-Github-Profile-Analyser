@@ -185,6 +185,7 @@ def send_to_ai(filename):
     - **Handle Missing Data**: If `topics` or `keywords` are missing, mention it as "No relevant data available" or "No topics found."
     - **Tone**: Provide a balanced and insightful tone, with an emphasis on constructive feedback.
     - **Fallback for Missing Fields**: If the sentiment is not available, explain that the sentiment might be unclear due to limited project documentation.
+    - If the data is not give about something important, say that You cant provide the analysis based on no data to be provided.
         """
 
     print(user_prompt)

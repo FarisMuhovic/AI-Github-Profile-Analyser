@@ -115,18 +115,12 @@ async def fetch_repo_data(username):
             # Process repository data with text analysis (Sentiment, Topics, Keywords)
             processed_data = []
             for content in repo_data:
-                if content:  # Only process non-empty content
+                if content and len(content.strip()) > 0:  # Check for non-empty content
                     stats = get_text_stats(content)  # Sentiment analysis, word count, etc.
                     topics = perform_topic_modeling([content])  # Topic modeling
                     keywords = extract_keywords([content])  # TF-IDF keyword extraction
 
-                    # Print the analysis results for debugging
-                    print(f"Repository: {repo_name}")
-                    print("Stats:", stats)
-                    print("Topics:", topics)
-                    print("Keywords:", keywords)
-
-                    # Append processed data to filtered_repo
+                    # Proceed with data processing
                     processed_data.append({
                         "content": content,
                         "word_count": stats.get('word_count', ''),
@@ -135,6 +129,8 @@ async def fetch_repo_data(username):
                         "topics": ', '.join([str(topic) for topic in topics]),
                         "keywords": ', '.join([str(keyword) for keyword in keywords])
                     })
+                else:
+                    print(f"Skipping empty content in repo: {repo_name}")
 
             filtered_repo["repo_data"] = processed_data  # Attach processed data to the repo
             filtered_repos.append(filtered_repo)
@@ -169,10 +165,6 @@ def save_to_csv(filtered_repos, csv_file_name):
         writer.writerows(flat_data)
 
     print("Data saved to" + csv_file_name + ".csv")
-
-
-# Example usage:
-# asyncio.run(fetch_repo_data('FarisMuhovic'))
 
 
 async def fetch_repo_commits(session, username, repo_name):
