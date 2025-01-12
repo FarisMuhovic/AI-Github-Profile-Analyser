@@ -1,5 +1,4 @@
 import re
-import string
 from textblob import TextBlob
 from sklearn.decomposition import LatentDirichletAllocation
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
@@ -26,7 +25,7 @@ expertise_keywords = {
         'componentWillUnmount', 'useState', 'useContext', 'React Router', 'Redux', 'context api', 'hook',
         'render', 'memo', 'purecomponent', 'virtual dom', 'react native', 'component lifecycle', 'react hooks',
         'redux saga', 'useRef', 'componentDidUpdate', 'useMemo', 'reducer', 'setState', 'React.createElement',
-        'useCallback', 'defaultProps', 'propTypes'
+        'useCallback', 'defaultProps', 'propTypes', 'usestate'
     ],
     'java': [
         'public static void main', 'import', 'class', 'new', 'String[] args', 'extends', 'implements', 'super',
