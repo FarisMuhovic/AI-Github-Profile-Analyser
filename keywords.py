@@ -23,7 +23,7 @@ expertise_keywords = {
         # Basic Syntax
         'public', 'class', 'static', 'final', 'extends', 'implements', 'try', 'catch', 'throw', 'synchronized',
         'interface', 'abstract', 'enum', 'default', 'switch', 'case', 'while', 'do', 'for', 'if', 'else', 'private',
-        'protected', 'package', 'import', 'instanceof', 'void', 'return',
+        'protected', 'package', 'import', 'instanceof', 'void', 'return', '@test',
         # Libraries
         'spring', 'spring boot', 'hibernate', 'jpa', 'thymeleaf', 'apache kafka', 'jackson', 'gson', 'lombok',
         'junit', 'mockito', 'slf4j', 'log4j', 'vert.x', 'quarkus', 'micronaut', 'servlets', 'tomcat', 'jetty', 'jsp',
@@ -179,5 +179,6 @@ topics_keywords = [
 
     # Other
     'artificial intelligence', 'internet of things', 'blockchain', 'game development', 'unity', 'unreal engine',
-    'robotics', 'embedded systems', 'data visualization', 'data cleaning', 'etl pipelines'
+    'robotics', 'embedded systems', 'data visualization', 'data cleaning', 'etl pipelines', "web", "programming", "oop",
+    "test", "testing"
 ]

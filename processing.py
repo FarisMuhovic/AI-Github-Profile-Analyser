@@ -15,13 +15,6 @@ nltk.download('wordnet')
 
 # Define priority keywords for analysis
 
-priority_keywords = {
-    keyword: 3 if topic.lower() in ['oop', 'react', 'java', 'python', 'async_programming', 'machine_learning', 'nlp',
-                                    'game_development'] else 2
-    for topic, keywords in expertise_keywords.items()
-    for keyword in keywords
-}
-
 # Initialize the lemmatizer
 lemmatizer = WordNetLemmatizer()
 try:
@@ -46,7 +39,7 @@ def clean_text(text):
     text = text.lower()
 
     # Retain alphanumeric and special programming characters
-    text = re.sub(r'[^\w\s\(\)\{\}\[\]\<\>\#\=\+\-\*/\.\,\:\;]', '', text)
+    text = re.sub(r'[^\w\s(\)\{\}\[\]\<\>\#\=\+\-\*/\.\,\:\;]', '', text)
 
     # Tokenize and filter stopwords
     words = text.split()
@@ -54,39 +47,6 @@ def clean_text(text):
 
     # Join cleaned words back into a single string
     return ' '.join(cleaned_words)
-
-
-# Analyze Expertise Based on Keywords
-def analyze_expertise(text):
-    """
-    Analyze the user's expertise based on the occurrence of specific keywords.
-    Arguments:
-    - text: The text content of a file or repository.
-    Returns:
-    - A dictionary of expertise areas with counts or mentions.
-    """
-    expertise_analysis = {topic: 0 for topic in expertise_keywords}
-
-    # Tokenize and search for expertise-related keywords
-    words = text.lower().split()
-    for topic, keywords in expertise_keywords.items():
-        for keyword in keywords:
-            expertise_analysis[topic] += words.count(keyword)
-
-    # Filter out expertise areas with no mentions
-    expertise_results = {topic: count for topic, count in expertise_analysis.items() if count > 0}
-
-    # Generate insights for each expertise category
-    insights = []
-    for topic, count in expertise_results.items():
-        expertise_level = "Beginner"
-        if count > 5:
-            expertise_level = "Expert"
-        elif count > 2:
-            expertise_level = "Intermediate"
-        insights.append(f"{topic.capitalize()}: {expertise_level} (Mentions: {count})")
-
-    return insights
 
 
 # Text Statistics Function
@@ -120,14 +80,14 @@ def perform_topic_modeling(documents, languages_used, num_topics=10):
     Returns:
     - List of topics (each topic represented as a list of words).
     """
-    cleaned_documents = [clean_text(doc) for doc in documents]
+    # cleaned_documents = [clean_text(doc) for doc in documents]
 
-    if not cleaned_documents:
+    if not documents:
         return {"error": "No valid documents to process."}
 
     # Create a CountVectorizer to convert text into token counts
     vectorizer = CountVectorizer(stop_words='english')
-    X = vectorizer.fit_transform(cleaned_documents)
+    X = vectorizer.fit_transform(documents)
 
     # Apply Latent Dirichlet Allocation (LDA)
     lda = LatentDirichletAllocation(n_components=num_topics, random_state=42)
@@ -142,8 +102,15 @@ def perform_topic_modeling(documents, languages_used, num_topics=10):
         topic_words.append(top_words)
 
     # Filter topics to focus on technical jargon
-    relevant_topics = [topic for topic in topic_words if
-                       any(word in topic for word in topics_keywords)]
+
+    relevant_topics = [
+        topic for topic in topic_words
+        if any(word in topics_keywords for word in topic)
+    ]
+
+    if not relevant_topics:
+        logging.warning("No relevant topics matched the keywords.")
+        return topic_words  # Return all topics as a fallback
 
     return relevant_topics
 
@@ -186,24 +153,6 @@ def extract_keywords(documents, languages_used, num_keywords=10):
              expertise_keywords_filtered})
 
     return expertise_keywords_found
-
-
-# Prioritize Keywords Based on Custom Priority
-# def prioritize_keywords(keywords):
-#     """
-#     Adjust keyword importance based on predefined priority levels.
-#     Arguments:
-#     - keywords: List of extracted keywords.
-#     Returns:
-#     - A dictionary of keywords with adjusted priority scores.
-#     """
-#     adjusted_keywords = {}
-#
-#     for keyword in keywords:
-#         priority = priority_keywords.get(keyword, 1)  # Default to low priority (1)
-#         adjusted_keywords[keyword] = priority
-#
-#     return adjusted_keywords
 
 
 # Function to filter keywords based on detected languages

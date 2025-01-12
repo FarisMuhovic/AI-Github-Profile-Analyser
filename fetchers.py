@@ -7,7 +7,7 @@ import aiohttp
 from dotenv import load_dotenv
 import logging
 from parsers import parse_user_repos
-from processing import get_text_stats, perform_topic_modeling, extract_keywords
+from processing import get_text_stats, perform_topic_modeling, extract_keywords, clean_text
 
 # Load GitHub token for authorization
 load_dotenv('secrets.env')
@@ -97,6 +97,9 @@ async def fetch_repo_data(username):
             filtered_repo["structure"] = await fetch_repo_file_structure(session, username, repo_name,
                                                                          repo["default_branch"])
 
+            readme_content = filtered_repo["readme"] or ""
+            cleaned_readme = clean_text(readme_content) if readme_content.strip() else None
+
             # Filter and fetch content for each file
             repo_data = []
             if filtered_repo["structure"]:
@@ -110,12 +113,16 @@ async def fetch_repo_data(username):
                 repo_data = await asyncio.gather(*tasks)
 
             # Process repository data with text analysis (Sentiment, Topics, Keywords)
+
             languages_used = filtered_repo["languages"]
             processed_data = []
             for content in repo_data:
                 if content and len(content.strip()) > 0:  # Check for non-empty content
                     stats = get_text_stats(content)  # Sentiment analysis, word count, etc.
-                    topics = perform_topic_modeling([content], languages_used)  # Topic modeling
+                    topics = []
+                    if cleaned_readme and len(cleaned_readme) > 0:  # Prioritize the README
+                        topics = perform_topic_modeling([cleaned_readme], languages_used)  # Topic modeling
+
                     keywords = extract_keywords([content], languages_used)  # TF-IDF keyword extraction
 
                     # Proceed with data processing
@@ -127,6 +134,7 @@ async def fetch_repo_data(username):
                         "topics": ', '.join([str(topic) for topic in topics]),
                         "keywords": ', '.join([str(keyword) for keyword in keywords])
                     })
+
                 else:
                     logging.warning(f"Skipping empty content in repo: {repo_name}")
 
