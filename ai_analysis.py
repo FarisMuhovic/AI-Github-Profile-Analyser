@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 import pandas as pd
 import ast
 from ollama import chat
@@ -65,17 +67,12 @@ class GitHubUser:
 
 def clean_and_store_data_for_ai(input_csv_filename, output_csv_filename):
     print(f"Reading from: {input_csv_filename} and saving to: {output_csv_filename}")
-
-    # Read the CSV file locally
+    print("------------------------------------------")
     data = pd.read_csv(input_csv_filename)
 
     response_data = []
 
-    # Loop through each row of the CSV data
     for index, row in data.iterrows():
-        print(f"Processing row {index}: {row['repo_name']}")
-
-        # Create a ProjectData object from the row
         project = ProjectData(
             repo_name=row['repo_name'],
             languages=row['languages'],
@@ -86,10 +83,7 @@ def clean_and_store_data_for_ai(input_csv_filename, output_csv_filename):
             keywords=row['keywords']
         )
 
-        # Optionally process the data further or analyze it
-        print(f"Project data: {project}")
 
-        # Store the cleaned data: project name, sentiment, word count, sentence count, topics, and keywords
         if not project.is_empty():
             response_data.append(
                 [project.repo_name, project.sentiment, project.word_count, project.sentence_count, project.sentiment,
@@ -158,11 +152,11 @@ def read_cleaned_analysis(csv_filename):
 
 def send_to_ai(filename):
     user = read_user_details(filename + "_details.csv")
-    projects = read_cleaned_analysis(
-        filename + "_analysis_cleaned.csv")  # WE NEED TO MERGE EACH FILE FROM PROJECT INTO ONE.
+    projects = read_cleaned_analysis(filename + "_analysis_cleaned.csv")  # Merge files from project into one.
     user = user[0]
+    projects_merged = merge_projects_together(projects)
 
-    user_prompt = f"""
+    user_prompt_info = f"""
         Analyze the following GitHub user profile in the context of their development expertise:
         - User: {user.name}
         - Profile URL: {user.profile_url}
@@ -173,48 +167,53 @@ def send_to_ai(filename):
         - Followers: {user.followers_count}
         - Following: {user.following_count}
         
-        The user has {user.public_repos_count} public repositories and {user.followers_count} followers. 
         Analyze the user's activity to infer their development expertise, including their familiarity with different programming languages, tools, and frameworks, and their involvement in various projects. Additionally, consider:
         - The scope and complexity of repositories they contribute to, potentially indicating their level of experience (e.g., beginner, intermediate, or expert).
         - The diversity of the repositories, which may reflect their interests across different technology stacks (e.g., web development, machine learning, DevOps).
-        Provide a comprehensive analysis of the user’s expertise, activity, and overall profile based on this data.        
-        
-        
-    **Settings**:
-    - **Max Word Count for Analysis**: 300 words.
-    - **Handle Missing Data**: If `topics` or `keywords` are missing, mention it as "No relevant data available" or "No topics found."
-    - **Tone**: Provide a balanced and insightful tone, with an emphasis on constructive feedback.
-    - **Fallback for Missing Fields**: If the sentiment is not available, explain that the sentiment might be unclear due to limited project documentation.
-    - If the data is not give about something important, say that You cant provide the analysis based on no data to be provided.
+            
+        Settings:
+        - Max Word Count for Analysis: 1000 words.
+        - Handle Missing Data: If `topics` or `keywords` are missing, mention it as "No relevant data available" or "No topics found."
+        - Tone: Provide a balanced and insightful tone, with an emphasis on constructive feedback.
+        - Fallback for Missing Fields: If the sentiment is not available, explain that the sentiment might be unclear due to limited project documentation.
+           
+        Below is the project data of the current user.  
+        Keywords are the important tokens from the codebase of that repository.
+        Topics are general concepts in the IT world.  
+    """
+
+    # Construct the project data in a concise format
+    projects_data = ""
+    for project in projects_merged:
+        # Summarizing project information
+        project_info = f"""
+            Project: {project['Project']}
+            Sentiment: {project['Sentiment']} (Positive/Negative/Neutral)
+            Word Count: {project['Word Count']}
+            Sentence Count: {project['Sentence Count']}
+            Languages Used: {project["Languages"]}
+            Keywords: {', '.join(project['Keywords']) if project['Keywords'] else 'No keywords'}
+            Topics: {', '.join([str(topic) for topic in project['Topics'][:10]])} 
+            ----------------------------------------
         """
+        projects_data += project_info
+
+    # Final consolidated prompt
+    user_prompt = f"""
+        {user_prompt_info}
+        
+        Projects Data:
+        {projects_data}
+
+        Analyze the user's expertise, project complexity, sentiment, and keywords. For each project:
+        - Evaluate the overall complexity based on word count, sentiment, and keywords.
+        - Identify any trends in the topics or technologies.
+        - Offer insights into the user's development expertise based on their contributions.
+        - Provide a summary of their strengths and potential areas for improvement.
+    """
 
     print(user_prompt)
-
-    # for project in projects:
-    #     print(f"Sending project to AI: {project}")
-    #     # Prepare prompt for AI to analyze project data
-    #     project_prompt = f"""
-    #         Analyze the following GitHub project in the context of software engineering practices, project complexity, and technical skills:
-    #         - Project Name: {project.repo_name}
-    #         - Word Count: {project.word_count}
-    #         - Sentence Count: {project.sentence_count}
-    #         - Sentiment: {project.sentiment}
-    #         - Topics: {project.topics}
-    #         - Keywords: {project.keywords}
-    #
-    #         The project consists of {project.word_count} words and {project.sentence_count} sentences, indicating its size and the depth of documentation or code comments. The sentiment analysis reveals a score of {project.sentiment}, which can provide insights into the tone of the project—whether it's focused on innovation, collaboration, problem-solving, or other themes.
-    #
-    #         The topics of the project cover areas such as {project.topics}, which are crucial to understanding the technical stack and domain expertise of the repository. Keywords extracted from the content like {project.keywords} can offer additional insight into the core technologies, frameworks, and methodologies being utilized.
-    #
-    #         Based on this data, analyze:
-    #         - The **complexity** of the project, taking into account its size (word count, sentence count) and technical content. Does it appear to be a large-scale project that requires advanced knowledge, or is it a smaller, more focused initiative?
-    #         - The **sentiment** of the project, which could indicate the approach or challenges the project is addressing. A negative sentiment might suggest unresolved issues or challenges, while a positive sentiment may point to a well-supported and active project.
-    #         - The **relevance and focus of keywords and topics** within the project. How do these align with industry trends and the user’s areas of expertise? Are they primarily focused on modern tools and frameworks, or do they suggest an interest in legacy technologies?
-    #
-    #         Provide an in-depth analysis of the project’s complexity, sentiment, and technical relevance based on this information, and offer insights into the developer's strengths and areas for improvement.
-    #         """
-    #
-    #     print(f"Project Prompt for AI: {project_prompt}")
+    print("------------------------------------------")
 
     response: ChatResponse = chat(model='llama3.2', messages=[
         {
@@ -222,8 +221,11 @@ def send_to_ai(filename):
             'content': user_prompt
         },
     ])
+    print("------------------------------------------")
     print(response.message.content)
+    print("------------------------------------------")
     save_response_to_file(filename, user_prompt, response.message.content)
+
 
 def save_response_to_file(username, prompt, response):
     # Create the filename using the username
@@ -233,13 +235,65 @@ def save_response_to_file(username, prompt, response):
     with open(filename, 'w') as file:
         # Write the username and the review statement
         file.write(f"{username} has reviewed their profile.\n\n")
-
+        file.write("------------------------------------------")
         # Write the prompt
         file.write("Prompt:\n")
         file.write(f"{prompt}\n\n")
-
+        file.write("------------------------------------------")
         # Write the response
         file.write("Response:\n")
         file.write(f"{response}\n")
 
     print(f"Response saved to {filename}")
+
+
+
+def merge_projects_together(projects):
+    # Grouping data by project name
+    grouped_projects = defaultdict(lambda: {
+        'sentiment': [],
+        'word_count': [],
+        'sentence_count': [],
+        'topics': set(),
+        'keywords': set(),
+        'languages': set()  # Field for languages extracted from keywords
+    })
+
+    for project in projects:
+        project_name = project.repo_name  # Use dot notation to access attributes
+        sentiment = project.sentiment
+        word_count = project.word_count
+        sentence_count = project.sentence_count
+        topics = project.topics
+        keywords = project.keywords  # This should already be a dictionary
+
+        # Parse the keywords and extract languages
+        if keywords:
+            grouped_projects[project_name]['languages'].update(keywords.keys())  # Extract languages
+            for key, keyword_list in keywords.items():
+                grouped_projects[project_name]['keywords'].update(keyword_list)
+
+        # Add topics to the grouped data
+        if topics and isinstance(topics, list):
+            grouped_projects[project_name]['topics'].update(topics)
+
+        # Add other project data to the grouped data
+        grouped_projects[project_name]['sentiment'].append(sentiment)
+        grouped_projects[project_name]['word_count'].append(word_count)
+        grouped_projects[project_name]['sentence_count'].append(sentence_count)
+
+    # Merging grouped data
+    merged_projects = []
+    for project_name, data in grouped_projects.items():
+        merged_project = {
+            'Project': project_name,
+            'Sentiment': sum(data['sentiment']) / len(data['sentiment']) if data['sentiment'] else None,
+            'Word Count': sum(data['word_count']),
+            'Sentence Count': sum(data['sentence_count']),
+            'Topics': list(data['topics']),
+            'Keywords': list(data['keywords']),
+            'Languages': list(data['languages'])  # Include extracted languages
+        }
+        merged_projects.append(merged_project)
+
+    return merged_projects

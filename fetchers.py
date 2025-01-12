@@ -5,7 +5,7 @@ import csv
 import asyncio
 import aiohttp
 from dotenv import load_dotenv
-
+import logging
 from parsers import parse_user_repos
 from processing import get_text_stats, perform_topic_modeling, extract_keywords
 
@@ -81,17 +81,14 @@ async def fetch_file_content(session, owner, repo, file_path):
     return None
 
 
-# Assuming you have already defined fetch_user_repos, parse_user_repos, etc.
-
 async def fetch_repo_data(username):
     async with aiohttp.ClientSession(headers=headers) as session:
         user_repos = await fetch_user_repos(username)
-        filtered_repos = []
-
         if not isinstance(user_repos, list):
-            print("Unexpected response format:", user_repos)
+            logging.error(f"Unexpected response format for repos of {username}: {user_repos}")
             return []
 
+        filtered_repos = []
         for repo in user_repos:
             repo_name = repo["name"]
             filtered_repo = parse_user_repos(repo)
@@ -113,12 +110,13 @@ async def fetch_repo_data(username):
                 repo_data = await asyncio.gather(*tasks)
 
             # Process repository data with text analysis (Sentiment, Topics, Keywords)
+            languages_used = filtered_repo["languages"]
             processed_data = []
             for content in repo_data:
                 if content and len(content.strip()) > 0:  # Check for non-empty content
                     stats = get_text_stats(content)  # Sentiment analysis, word count, etc.
-                    topics = perform_topic_modeling([content])  # Topic modeling
-                    keywords = extract_keywords([content])  # TF-IDF keyword extraction
+                    topics = perform_topic_modeling([content], languages_used)  # Topic modeling
+                    keywords = extract_keywords([content], languages_used)  # TF-IDF keyword extraction
 
                     # Proceed with data processing
                     processed_data.append({
@@ -130,9 +128,9 @@ async def fetch_repo_data(username):
                         "keywords": ', '.join([str(keyword) for keyword in keywords])
                     })
                 else:
-                    print(f"Skipping empty content in repo: {repo_name}")
+                    logging.warning(f"Skipping empty content in repo: {repo_name}")
 
-            filtered_repo["repo_data"] = processed_data  # Attach processed data to the repo
+            filtered_repo["repo_data"] = processed_data
             filtered_repos.append(filtered_repo)
 
         # Save the data to CSV
@@ -140,9 +138,7 @@ async def fetch_repo_data(username):
         return filtered_repos
 
 
-# Save the filtered repository data to a CSV file
 def save_to_csv(filtered_repos, csv_file_name):
-    # Flatten the data
     flat_data = []
     for repo in filtered_repos:
         for repo_data in repo.get("repo_data", []):
@@ -164,7 +160,7 @@ def save_to_csv(filtered_repos, csv_file_name):
         writer.writeheader()
         writer.writerows(flat_data)
 
-    print("Data saved to" + csv_file_name + ".csv")
+    print("Data saved to " + csv_file_name + ".csv")
 
 
 async def fetch_repo_commits(session, username, repo_name):
