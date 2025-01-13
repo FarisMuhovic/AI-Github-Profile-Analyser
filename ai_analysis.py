@@ -222,6 +222,8 @@ def send_to_ai(filename, stats, vocab):
         - Identify any trends in the topics or technologies.
         - Offer insights into the user's development expertise based on their contributions.
         - Provide a summary of their strengths and potential areas for improvement.
+        
+        The final question we want to be answered is what kind of career in IT would this developer prefer ? 
     """
 
     print(user_prompt)
