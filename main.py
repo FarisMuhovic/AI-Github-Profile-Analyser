@@ -5,7 +5,8 @@ from fetchers import check_rate_limit, fetch_user_details, fetch_repo_data
 from parsers import parse_user_details, user_details_to_csv
 from processing import get_text_stats, analyze_vocabulary
 from ai_analysis import clean_and_store_data_for_ai, send_to_ai
-
+import matplotlib.pyplot as plt
+import pandas as pd
 
 async def main():
     try:
@@ -65,3 +66,14 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
+    # df = pd.read_csv('warlock1305_analysis.csv')
+    # language_counts = df['languages'].apply(lambda x: list(eval(x).keys())[0]).value_counts()
+    # plt.pie(language_counts, labels=language_counts.index, autopct='%1.1f%%', startangle=90)
+    # plt.title('Language Usage Across Repositories')
+    # plt.show()
+
+
+
+
+
