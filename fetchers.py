@@ -134,7 +134,7 @@ async def fetch_repo_data(username):
                         "topics": ', '.join([str(topic) for topic in topics]),
                         "keywords": ', '.join([str(keyword) for keyword in keywords])
                     })
-
+                    # print("topics", ', '.join([str(topic) for topic in topics]),)
                 else:
                     logging.warning(f"Skipping empty content in repo: {repo_name}")
 

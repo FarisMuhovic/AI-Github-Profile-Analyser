@@ -4,18 +4,18 @@ from textblob import TextBlob
 from sklearn.decomposition import LatentDirichletAllocation
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 import nltk
-from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from keywords import expertise_keywords, topics_keywords
+from nltk import FreqDist, word_tokenize, ngrams
+from nltk.corpus import stopwords
+import string
+from collections import Counter
+import matplotlib.pyplot as plt
 
-# Download necessary NLTK data
 nltk.download('stopwords')
 nltk.download('punkt')
 nltk.download('wordnet')
 
-# Define priority keywords for analysis
-
-# Initialize the lemmatizer
 lemmatizer = WordNetLemmatizer()
 try:
     stop_words = set(stopwords.words('english'))
@@ -30,7 +30,7 @@ def clean_text(text):
     """
     Preprocess and clean text for analysis.
     - Retain meaningful non-alphabetic content (e.g., numbers, programming terms).
-    - Remove stopwords and lemmatize words.
+    - Remove stopwords and lemmatize words ( to root form ).
     """
     if not text.strip():  # Skip empty or whitespace-only content
         return ''
@@ -49,8 +49,12 @@ def clean_text(text):
     return ' '.join(cleaned_words)
 
 
-# Text Statistics Function
 def get_text_stats(text):
+    # Text Statistics Function
+    # Gets the sentiment value, positive negative or neutral. Based on words,
+    # Example:
+    # "I love this" → polarity = 0.5 (positive).
+    # "This is bad" → polarity = -0.7 (negative).
     text = str(text)
     word_count = len(text.split())
     sentence_count = text.count('.')  # simple sentence count
@@ -66,30 +70,100 @@ def get_text_stats(text):
     }
 
 
-# Topic Modeling Function (LDA)
-def perform_topic_modeling(documents, languages_used, num_topics=10):
-    if not documents or all(len(text.strip()) == 0 for text in documents):
-        logging.error("No valid content provided for topic modeling.")
-        return []
+def analyze_vocabulary(text):
+    # Tokenize and preprocess
+    text = str(text).lower()
+    tokens = word_tokenize(text)
 
+    # Define stopwords and punctuation to filter
+    stop_words = set(stopwords.words('english'))
+    custom_stop_words = set(string.punctuation)
+    custom_stop_words.update(["''", "``", "n't", "'s", "--", "...", "\n", "\t", "\\n"])
+
+    # Additional filters: remove single characters, numbers, and other noise
+    def is_valid_token(token):
+        return (
+                token not in stop_words and
+                token not in custom_stop_words and
+                len(token) > 1 and  # Exclude single characters
+                not token.isdigit() and  # Exclude numbers
+                not re.match(r'^\s+$', token)  # Exclude whitespace
+        )
+
+    # Filter tokens
+    filtered_tokens = [word for word in tokens if is_valid_token(word)]
+
+    # Vocabulary size
+    vocab_size = len(set(filtered_tokens))
+
+    # Most common words
+    most_common_words = FreqDist(filtered_tokens).most_common(25)
+
+    # Generate bigrams and filter based on custom stopwords
+    bigram_list = list(
+        filter(lambda x: is_valid_token(x[0]) and is_valid_token(x[1]), ngrams(filtered_tokens, 2))
+    )
+    bigrams = Counter(bigram_list).most_common(25)
+
+    # Plot distribution
+    plot_word_frequency(filtered_tokens)
+
+    return {
+        "vocab_size": vocab_size,
+        "most_common_words": most_common_words,
+        "bigrams": bigrams,
+    }
+
+
+def plot_word_frequency(tokens):
+    """
+    Plot the frequency distribution of the most common words.
+    """
+    fdist = FreqDist(tokens)
+    most_common = fdist.most_common(25)  # Top 10 most frequent words
+    words, counts = zip(*most_common)  # Unpack words and counts
+
+    # Plot bar chart
+    plt.figure(figsize=(25, 10))
+    plt.bar(words, counts, color='skyblue')
+    plt.xlabel('Words', fontsize=12)
+    plt.ylabel('Frequency', fontsize=12)
+    plt.title('Top 25 Most Frequent Words', fontsize=15)
+    plt.xticks(rotation=45)
+    plt.show()
+
+
+# Topic Modeling Function (LDA)
+def perform_topic_modeling(documents, languages_used=None, num_topics=3, num_words=10):
     """
     Performs topic modeling using LDA, focusing on relevant technical topics.
     Arguments:
     - documents: List of text documents (strings).
+    - languages_used: List of programming languages used (optional, currently not utilized).
     - num_topics: Number of topics to extract.
+    - num_words: Number of words to extract per topic.
     Returns:
-    - List of topics (each topic represented as a list of words).
+    - Relevant topics: List of dictionaries with topic names and top words.
     """
-    # cleaned_documents = [clean_text(doc) for doc in documents]
+    if not documents or all(len(text.strip()) == 0 for text in documents):
+        logging.error("No valid content provided for topic modeling.")
+        return []
 
-    if not documents:
-        return {"error": "No valid documents to process."}
+    # Clean and preprocess documents
+    cleaned_documents = [clean_text(doc) for doc in documents]
+
+    if not any(cleaned_documents):
+        logging.error("No valid content remains after cleaning.")
+        return []
 
     # Create a CountVectorizer to convert text into token counts
-    vectorizer = CountVectorizer(stop_words='english')
-    X = vectorizer.fit_transform(documents)
+    vectorizer = CountVectorizer(stop_words='english', max_features=2000)
+    X = vectorizer.fit_transform(cleaned_documents)
 
     # Apply Latent Dirichlet Allocation (LDA)
+    # LDA is a generative probabilistic model that assumes each document is a mixture of topics,
+    # where a topic is a probability distribution over words
+    # The goal is to identify patterns in word co-occurrence that suggest topics within the text.
     lda = LatentDirichletAllocation(n_components=num_topics, random_state=42)
     lda.fit(X)
 
@@ -97,29 +171,37 @@ def perform_topic_modeling(documents, languages_used, num_topics=10):
     topic_words = []
     feature_names = vectorizer.get_feature_names_out()
     for topic_idx, topic in enumerate(lda.components_):
-        top_words_idx = topic.argsort()[:-11:-1]
+        top_words_idx = topic.argsort()[:-num_words - 1:-1]
         top_words = [feature_names[i] for i in top_words_idx]
-        topic_words.append(top_words)
+        topic_words.append({"Topic": f"Topic {topic_idx + 1}", "Words": top_words})
 
-    # Filter topics to focus on technical jargon
-
-    relevant_topics = [
-        topic for topic in topic_words
-        if any(word in topics_keywords for word in topic)
-    ]
+    # Filter topics to focus on relevant keywords
+    relevant_topics = []
+    for topic in topic_words:
+        matching_keywords = [
+            word for word in topic["Words"]
+            if any(word in topics_keywords[key] for key in topics_keywords)
+        ]
+        if matching_keywords:
+            relevant_topics.append({
+                "Topic": topic["Topic"],
+                "Relevant Words": matching_keywords,
+            })
 
     if not relevant_topics:
         logging.warning("No relevant topics matched the keywords.")
-        return topic_words  # Return all topics as a fallback
+        return []  # Return all topics as a fallback
 
     return relevant_topics
 
 
 # Keyword Extraction Function (TF-IDF)
-def extract_keywords(documents, languages_used, num_keywords=10):
+def extract_keywords(documents, languages_used, num_keywords=25):
     expertise_keywords_filtered = filter_keywords(languages_used, expertise_keywords)
     """
+    Term Frequency-Inverse Document Frequency
     Extracts keywords based on TF-IDF from a list of documents.
+    identifying important words in text
     Arguments:
     - documents: List of text documents (strings).
     - num_keywords: Number of keywords to extract per document.

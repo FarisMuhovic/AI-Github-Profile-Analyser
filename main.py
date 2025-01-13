@@ -3,7 +3,7 @@ import time
 
 from fetchers import check_rate_limit, fetch_user_details, fetch_repo_data
 from parsers import parse_user_details, user_details_to_csv
-from processing import get_text_stats
+from processing import get_text_stats, analyze_vocabulary
 from ai_analysis import clean_and_store_data_for_ai, send_to_ai
 
 
@@ -33,9 +33,11 @@ async def main():
         print("User Details: ")
         print(user_details)
         print("------------------------------------------")
-        stats = get_text_stats(repo_data)
         print("Profile statistics: ")
+        stats = get_text_stats(repo_data)
         print(stats)
+        vocab = analyze_vocabulary(repo_data)
+        print(vocab)
         print("------------------------------------------")
         # Export user details to a CSV file (if applicable)
         user_details_to_csv(user_details, f"{username}_details.csv")
@@ -49,7 +51,7 @@ async def main():
         clean_and_store_data_for_ai(f"{username}_analysis.csv", f"{username}_analysis_cleaned.csv")
         print("Please wait while the AI answers to your response.")
         print("------------------------------------------")
-        send_to_ai(username)
+        send_to_ai(username, stats, vocab)
         # Calculate and display elapsed time
         end_time = time.time()
         elapsed_time = end_time - start_time

@@ -97,88 +97,180 @@ expertise_keywords = {
         'type',
         'union type', 'intersection type', 'type alias', 'enum', 'tuple', 'generic', 'namespace', 'module', 'import',
         'export', 'react', 'node.js', 'nestjs', 'express', 'redux', 'typeorm', 'graphql', 'jest'
+    ],
+    "R": [
+        'function', 'data.frame', 'list', 'matrix', 'vector', 'factor', 'ggplot', 'dplyr', 'tidyr', 'shiny', 'caret',
+        'lm', 'glm', 't.test', 'anova', 'read.csv', 'write.csv', 'plot', 'hist', 'barplot', 'summary', 'print',
+        'ggplot2',
+        'tidyverse', 'stringr', 'lubridate',
+    ],
+    "Shell": [
+        'if', 'else', 'elif', 'for', 'while', 'do', 'done', 'exit', 'echo', 'grep', 'awk', 'sed', 'cut', 'find', 'tar',
+        'chmod', 'chown', 'ls', 'cp', 'mv', 'rm', 'ps', 'kill', 'chmod', 'source', 'export', 'alias', 'mkdir',
+    ],
+    "SQL": [
+        'select', 'insert', 'update', 'delete', 'from', 'where', 'join', 'inner join', 'left join', 'right join',
+        'union', 'group by', 'order by', 'having', 'count', 'sum', 'avg', 'min', 'max', 'create table', 'alter table',
+        'drop table', 'primary key', 'foreign key', 'distinct', 'like', 'in', 'between', 'not in', 'case when',
+    ],
+    "C": [
+        # Basic Syntax
+        'int', 'char', 'float', 'double', 'void', 'long', 'short', 'unsigned', 'signed', 'for', 'while', 'do', 'if',
+        'else',
+        'switch', 'case', 'break', 'continue', 'return', 'struct', 'union', 'enum', 'typedef', 'const', 'volatile',
+        'static',
+        'extern', 'goto', 'sizeof', 'pointer', 'null', 'dereference', 'address-of', 'array', 'typedef',
+        # Libraries
+        'stdio.h', 'stdlib.h', 'string.h', 'math.h', 'ctype.h', 'time.h', 'assert.h', 'pthread.h', 'signal.h',
+        'stdarg.h',
+        # Functions (specific libraries)
+        'printf', 'scanf', 'fopen', 'fclose', 'fread', 'fwrite', 'malloc', 'calloc', 'free', 'strlen', 'strcpy',
+        'strcmp',
+        'memcpy', 'memset', 'exit', 'abort', 'pow', 'sqrt', 'rand', 'srand', 'localtime', 'difftime', 'clock',
+    ],
+    "Rust": [
+        # Basic Syntax
+        'let', 'mut', 'fn', 'struct', 'enum', 'impl', 'match', 'if', 'else', 'while', 'for', 'loop', 'continue',
+        'break',
+        'return', 'static', 'const', 'trait', 'type', 'move', 'borrow', 'ownership', 'lifetime', 'unsafe', 'ref',
+        'mutability',
+        # Libraries
+        'serde', 'tokio', 'actix', 'rocket', 'reqwest', 'clap', 'diesel', 'sqlx', 'rayon', 'futures', 'hyper', 'warp',
+        # Functions (specific libraries)
+        'serde_derive', 'serde_json', 'actix_web::main', 'tokio::spawn', 'reqwest::get', 'rocket::launch',
+        'diesel::insert_into',
+        'clap::App', 'rayon::join', 'hyper::Client', 'warp::path',
+    ],
+
+    "MongoDB": [
+        # Basic Terms
+        'mongodb', 'document', 'collection', 'db', 'cursor', 'query', 'index', 'aggregation', 'insert', 'update',
+        'delete',
+        'find', 'sort', 'limit', 'skip', 'projection', 'replica set', 'shard', 'mongo shell', 'mongod', 'mongos',
+        'mongocli',
+        # Drivers and Libraries
+        'pymongo', 'mongoose', 'mongoengine', 'mongodb-driver', 'mongodb-atlas', 'mongoc', 'mongodb-compass', 'mongojs',
+        # Functions (specific libraries)
+        'insert_one', 'find_one', 'update_one', 'delete_one', 'aggregate', 'find', 'count_documents', 'distinct',
+        'drop',
+        'create_index', 'drop_index', 'bulk_write', 'update_many', 'insert_many', 'mongo.connect', 'mongoose.model',
+    ],
+    "Makefile": [
+        'make', 'makefile', 'make', 'target', 'build', 'clean', 'install', 'dependencies', 'compile', 'gcc', 'g++',
+        'CFLAGS', 'LDFLAGS', 'CC', 'CXX', 'run', 'test', 'all', 'phony', 'rules', 'commands', 'buildsystem',
+        'automation'
+    ],
+    "Shell": [
+        'bash', 'sh', 'zsh', 'echo', 'awk', 'sed', 'grep', 'curl', 'chmod', 'chown', 'ps', 'kill', 'cron', 'tar',
+        'gzip', 'ssh', 'scp', 'find', 'head', 'tail', 'cat', 'cut', 'sort', 'uniq', 'head', 'tail', 'ifconfig',
+        'iptables', 'wget', 'make', 'source', 'export', 'function', 'alias', 'return'
+    ],
+    "Perl": [
+        'sub', 'my', 'our', 'use', 'strict', 'warnings', 'foreach', 'if', 'elsif', 'else', 'print', 'push', 'pop',
+        'shift', 'unshift', 'split', 'join', 'map', 'grep', 'regex', 'qw', 'die', 'eval', 'chomp', 'open', 'close',
+        'require', 'package', 'hash', 'array', 'scalar', 'cgi', 'DBI'
+    ],
+    "Lua": [
+        'function', 'local', 'require', 'module', 'return', 'if', 'then', 'else', 'elseif', 'end', 'for', 'while',
+        'do', 'repeat', 'until', 'break', 'continue', 'table', 'pairs', 'ipairs', 'metatable', 'setmetatable',
+        'getmetatable', 'load', 'dofile', 'coroutine', 'string', 'math', 'os', 'io', 'assert', 'collectgarbage'
     ]
+
 }
 
-topics_keywords = [
-    # Data Structures
-    'data structures', 'linked list', 'singly linked list', 'doubly linked list', 'circular linked list', 'stack',
-    'queue', 'deque', 'priority queue', 'heap', 'min-heap', 'max-heap', 'binary search tree', 'avl tree',
-    'red-black tree', 'b-tree', 'trie', 'suffix tree', 'suffix array', 'disjoint set', 'union-find', 'segment tree',
-    'fenwick tree', 'hash table', 'hash map', 'hash set', 'graph', 'adjacency list', 'adjacency matrix',
-    'incidence matrix',
-
-    # Graph Algorithms
-    'dfs', 'bfs', 'dijkstra', 'bellman-ford', 'floyd-warshall', 'johnson’s algorithm', 'kruskal', 'prims',
-    'topological sort', 'strongly connected components', 'kosaraju’s algorithm', 'tarjan’s algorithm',
-    'bridges in graph', 'articulation points', 'eulerian path', 'hamiltonian path', 'shortest path algorithms',
-    'minimum spanning tree', 'network flow', 'ford-fulkerson', 'edmonds-karp', 'dinic’s algorithm',
-
-    # Sorting Algorithms
-    'sorting algorithms', 'bubble sort', 'selection sort', 'insertion sort', 'merge sort', 'quick sort',
-    'heap sort', 'radix sort', 'counting sort', 'bucket sort', 'shell sort', 'tim sort',
-
-    # Searching Algorithms
-    'binary search', 'linear search', 'ternary search', 'exponential search', 'jump search', 'interpolation search',
-
-    # Algorithmic Paradigms
-    'dynamic programming', 'divide and conquer', 'backtracking', 'greedy algorithms', 'branch and bound',
-    'recursion', 'memoization',
-
-    # String Algorithms
-    'kmp algorithm', 'z-algorithm', 'rabin-karp', 'aho-corasick', 'manacher’s algorithm',
-    'longest common subsequence', 'longest palindromic substring',
-
-    # Computational Geometry
-    'convex hull', 'graham’s scan', 'jarvis march', 'closest pair of points', 'line segment intersection',
-    'polygon triangulation',
-
-    # Number Theory
-    'gcd', 'lcm', 'modular arithmetic', 'modular exponentiation', 'sieve of eratosthenes', 'prime factorization',
-    'euler’s totient function', 'fermat’s little theorem', 'chinese remainder theorem',
-
-    # Advanced Concepts
-    'big-o notation', 'time complexity', 'space complexity', 'amortized analysis', 'randomized algorithms',
-    'probabilistic algorithms', 'parallel algorithms', 'distributed algorithms', 'approximation algorithms',
-
-    # Machine Learning
-    'supervised learning', 'unsupervised learning', 'reinforcement learning', 'linear regression',
-    'logistic regression',
-    'decision trees', 'random forests', 'support vector machines', 'naive bayes', 'k-nearest neighbors',
-    'k-means clustering', 'pca', 'lda', 'neural networks', 'deep learning', 'convolutional neural networks',
-    'recurrent neural networks', 'transformers', 'natural language processing', 'tokenization', 'stemming',
-    'lemmatization',
-
-    # Databases
-    'relational database', 'sql', 'nosql', 'mongodb', 'postgresql', 'mysql', 'oracle', 'sql server',
-    'database normalization', 'acid properties', 'database indexing', 'stored procedures', 'triggers',
-    'entity-relationship model', 'jpa', 'hibernate', 'optimistic locking', 'pessimistic locking',
-
-    # Web Development
-    'frontend development', 'backend development', 'api development', 'restful apis', 'graphql', 'jwt authentication',
-    'session management', 'cross-origin resource sharing', 'http methods', 'css frameworks', 'responsive design',
-    'progressive web apps', 'web sockets', 'server-side rendering', 'client-side rendering',
-
-    # Cloud and DevOps
-    'aws', 'azure', 'google cloud', 'docker', 'kubernetes', 'terraform', 'ansible', 'jenkins', 'ci/cd pipelines',
-    'cloudformation', 'helm charts', 'monitoring and logging', 'prometheus', 'grafana', 'splunk',
-
-    # Operating Systems
-    'process scheduling', 'threads', 'mutex', 'semaphores', 'deadlocks', 'memory management', 'paging', 'segmentation',
-    'file systems', 'virtual memory', 'i/o management', 'scheduling algorithms', 'round robin', 'shortest job next',
-
-    # Software Engineering
-    'agile methodology', 'scrum', 'kanban', 'waterfall model', 'spiral model', 'v-model', 'software testing',
-    'unit testing', 'integration testing', 'system testing', 'acceptance testing', 'regression testing',
-    'test-driven development', 'behavior-driven development',
-
-    # Cybersecurity
-    'cryptography', 'hashing algorithms', 'symmetric encryption', 'asymmetric encryption', 'rsa', 'aes',
-    'diffie-hellman', 'firewalls', 'vpn', 'penetration testing', 'vulnerability assessment', 'sql injection',
-    'cross-site scripting', 'csrf attacks', 'zero-day exploits',
-
-    # Other
-    'artificial intelligence', 'internet of things', 'blockchain', 'game development', 'unity', 'unreal engine',
-    'robotics', 'embedded systems', 'data visualization', 'data cleaning', 'etl pipelines', "web", "programming", "oop",
-    "test", "testing"
-]
+topics_keywords = {
+    "testing": [
+        "testing", "automation", "selenium", "junit", "qa", "webdriver", "authentication",
+        "search", "unit testing", "integration testing", "test suite", "mocking", "CI/CD",
+        "debugging", "regression testing", "performance testing", "acceptance testing",
+        "usability testing", "load testing", "test case", "test report", "test coverage",
+        "test environment", "error handling", "automated testing", "manual testing"
+    ],
+    "github": [
+        "github", "repository", "version", "collaboration", "code", "issues", "commit",
+        "pull request", "fork", "clone", "branching", "commit history", "git", "github API",
+        "git commands", "merge conflict", "git flow", "branch management", "gitlab", "bitbucket",
+        "source control", "code review", "codebase", "collaborative workflow", "open source"
+    ],
+    "security": [
+        "ssl", "certificate", "https", "encryption", "security", "data", "firewall", "vulnerability",
+        "penetration testing", "access control", "authentication tokens", "data breach", "hacking",
+        "cybersecurity", "phishing", "malware", "ransomware", "data integrity", "intrusion detection",
+        "password management", "encryption keys", "secure sockets", "crypto", "security protocol",
+        "compliance", "two-factor authentication", "authentication", "scanning", "web security",
+        "ddos protection", "xss attack"
+    ],
+    "performance": [
+        "performance", "load", "reliability", "accessibility", "testing", "response", "speed",
+        "load testing", "stress testing", "scalability", "throughput", "latency", "performance optimization",
+        "benchmarking", "resource management", "caching", "server optimization", "disk I/O", "bottleneck",
+        "network latency", "query optimization", "data processing speed", "concurrency", "high availability",
+        "scalability testing", "load balancing", "fault tolerance", "thread management", "parallelism"
+    ],
+    "architecture": [
+        "architecture", "pom", "page", "design", "modularity", "class", "microservices", "distributed system",
+        "scalability", "database", "containerization", "serverless", "design patterns", "restful API",
+        "mvc", "api gateway", "docker", "kubernetes", "cloud architecture", "cloud native", "monolithic",
+        "middleware", "asynchronous", "event-driven", "message queues", "load balancing", "cloud computing",
+        "network topology", "service mesh", "enterprise architecture", "high availability", "fault tolerance"
+    ],
+    "data_analysis": [
+        "data", "analysis", "data science", "machine learning", "deep learning", "pandas", "numpy", "scikit-learn",
+        "data visualization", "data wrangling", "data cleaning", "big data", "hadoop", "spark", "sql", "noSQL",
+        "data pipeline", "data mining", "predictive modeling", "statistical analysis", "regression analysis",
+        "classification", "clustering", "feature engineering", "data set", "AI", "neural network",
+        "artificial intelligence",
+        "time series analysis", "exploratory data analysis"
+    ],
+    "devops": [
+        "devops", "ci/cd", "docker", "kubernetes", "automation", "infrastructure as code", "configuration management",
+        "monitoring", "logging", "continuous integration", "continuous delivery", "terraform", "ansible", "jenkins",
+        "cloud infrastructure", "cloud deployment", "microservices", "containers", "serverless", "scalability",
+        "devops pipeline", "version control", "automated testing", "release management", "git", "deployment",
+        "production environment", "docker-compose", "build pipeline", "deployment pipeline"
+    ],
+    "frontend": [
+        "frontend", "javascript", "react", "angular", "vue", "html", "css", "typescript", "dom", "ajax", "node.js",
+        "webpack", "babel", "sass", "scss", "responsive design", "grid layout", "css3", "html5", "front-end framework",
+        "react hooks", "vuex", "redux", "web performance", "web accessibility", "single page application",
+        "progressive web app", "frontend testing", "user interface", "ui/ux", "css flexbox"
+    ],
+    "backend": [
+        "backend", "python", "java", "node.js", "ruby", "django", "flask", "spring", "database", "sql", "mysql",
+        "postgresql", "mongodb", "redis", "api", "rest api", "graphql", "middleware", "authentication", "authorization",
+        "http", "web server", "server-side", "asynchronous", "message queue", "api design", "oauth", "jwt",
+        "database schema"
+    ],
+    "cloud": [
+        "cloud", "aws", "azure", "google cloud", "cloud computing", "cloud architecture", "containerization",
+        "docker", "kubernetes", "cloud storage", "serverless", "cloud security", "cloud migration", "virtualization",
+        "load balancing", "scalability", "cloud network", "cloud-native", "elasticity", "devops", "microservices",
+        "cloud deployment", "hybrid cloud", "cloud provider", "cloud hosting", "disaster recovery"
+    ],
+    "ai_ml": [
+        "ai", "machine learning", "deep learning", "neural networks", "tensorflow", "pytorch", "scikit-learn",
+        "k-nearest neighbor",
+        "random forest", "support vector machine", "supervised learning", "unsupervised learning",
+        "reinforcement learning",
+        "model training", "model evaluation", "data preprocessing", "data normalization", "feature engineering",
+        "gradient boosting",
+        "decision trees", "ai algorithms", "artificial intelligence", "data science", "predictive analytics",
+        "natural language processing"
+    ],
+    "mobile": [
+        "mobile", "android", "ios", "swift", "kotlin", "flutter", "react native", "xamarin", "mobile app",
+        "mobile development",
+        "native app", "hybrid app", "mobile ui", "mobile design", "mobile testing", "mobile performance",
+        "responsive design",
+        "cross-platform", "mobile security", "push notifications", "geolocation", "app store", "google play",
+        "app optimization",
+        "mobile backend"
+    ],
+    "database": [
+        "database", "sql", "mysql", "postgresql", "mongodb", "redis", "nosql", "database management", "data modeling",
+        "database design", "schema", "indexing", "query optimization", "transactions", "data integrity", "backup",
+        "replication",
+        "sharding", "database tuning", "database security", "data warehouse", "etl", "big data", "oracle", "sqlite",
+        "data consistency"
+    ]
+}

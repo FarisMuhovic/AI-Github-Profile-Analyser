@@ -83,7 +83,6 @@ def clean_and_store_data_for_ai(input_csv_filename, output_csv_filename):
             keywords=row['keywords']
         )
 
-
         if not project.is_empty():
             response_data.append(
                 [project.repo_name, project.sentiment, project.word_count, project.sentence_count, project.sentiment,
@@ -150,7 +149,7 @@ def read_cleaned_analysis(csv_filename):
     return projects
 
 
-def send_to_ai(filename):
+def send_to_ai(filename, stats, vocab):
     user = read_user_details(filename + "_details.csv")
     projects = read_cleaned_analysis(filename + "_analysis_cleaned.csv")  # Merge files from project into one.
     user = user[0]
@@ -158,24 +157,37 @@ def send_to_ai(filename):
 
     user_prompt_info = f"""
         Analyze the following GitHub user profile in the context of their development expertise:
-        - User: {user.name}
-        - Profile URL: {user.profile_url}
-        - Avatar: {user.avatar_url}
-        - Public Repos Count: {user.public_repos_count}
-        - Private Repos Count: {user.private_repos_count}
-        - Total Repos: {user.total_repos}
-        - Followers: {user.followers_count}
-        - Following: {user.following_count}
+            - User: {user.name}
+            - Profile URL: {user.profile_url}
+            - Avatar: {user.avatar_url}
+            - Public Repos Count: {user.public_repos_count}
+            - Private Repos Count: {user.private_repos_count}
+            - Total Repos: {user.total_repos}
+            - Followers: {user.followers_count}
+            - Following: {user.following_count}
+        
+        Here are the statistics of the data as a whole:
+            - Word count: {stats["word_count"]}
+            - Sentence count: {stats["sentence_count"]}
+            - Sentiment: {stats["sentiment"]} 
+            Gets the sentiment value, positive negative or neutral. Based on words,
+            Example:
+            "I love this" -> polarity = 0.5 (positive).
+            "This is bad" -> polarity = -0.7 (negative).
+            
+            - Vocabulary size: {vocab["vocab_size"]}
+            - Most Common Words: {vocab["most_common_words"]}
+            - Bigrams: {vocab["bigrams"]}
         
         Analyze the user's activity to infer their development expertise, including their familiarity with different programming languages, tools, and frameworks, and their involvement in various projects. Additionally, consider:
-        - The scope and complexity of repositories they contribute to, potentially indicating their level of experience (e.g., beginner, intermediate, or expert).
-        - The diversity of the repositories, which may reflect their interests across different technology stacks (e.g., web development, machine learning, DevOps).
+            - The scope and complexity of repositories they contribute to, potentially indicating their level of experience (e.g., beginner, intermediate, or expert).
+            - The diversity of the repositories, which may reflect their interests across different technology stacks (e.g., web development, machine learning, DevOps).
             
         Settings:
-        - Max Word Count for Analysis: 1000 words.
-        - Handle Missing Data: If `topics` or `keywords` are missing, mention it as "No relevant data available" or "No topics found."
-        - Tone: Provide a balanced and insightful tone, with an emphasis on constructive feedback.
-        - Fallback for Missing Fields: If the sentiment is not available, explain that the sentiment might be unclear due to limited project documentation.
+            - Max Word Count for Analysis: 1000 words.
+            - Handle Missing Data: If `topics` or `keywords` are missing, mention it as "No relevant data available" or "No topics found."
+            - Tone: Provide a balanced and insightful tone, with an emphasis on constructive feedback.
+            - Fallback for Missing Fields: If the sentiment is not available, explain that the sentiment might be unclear due to limited project documentation.
            
         Below is the project data of the current user.  
         Keywords are the important tokens from the codebase of that repository.
@@ -247,7 +259,6 @@ def save_response_to_file(username, prompt, response):
     print(f"Response saved to {filename}")
 
 
-
 def merge_projects_together(projects):
     # Grouping data by project name
     grouped_projects = defaultdict(lambda: {
@@ -266,16 +277,19 @@ def merge_projects_together(projects):
         sentence_count = project.sentence_count
         topics = project.topics
         keywords = project.keywords  # This should already be a dictionary
-
         # Parse the keywords and extract languages
+
+        if topics and isinstance(topics, dict):  # Ensure topics is a dictionary
+            for topic_name, topic_info in topics.items():
+                if isinstance(topic_info, list) or isinstance(topic_info, set):
+                    for i in topic_info:
+                        # print(i)
+                        grouped_projects[project_name]['topics'].add(i)
+
         if keywords:
             grouped_projects[project_name]['languages'].update(keywords.keys())  # Extract languages
             for key, keyword_list in keywords.items():
                 grouped_projects[project_name]['keywords'].update(keyword_list)
-
-        # Add topics to the grouped data
-        if topics and isinstance(topics, list):
-            grouped_projects[project_name]['topics'].update(topics)
 
         # Add other project data to the grouped data
         grouped_projects[project_name]['sentiment'].append(sentiment)
@@ -285,6 +299,7 @@ def merge_projects_together(projects):
     # Merging grouped data
     merged_projects = []
     for project_name, data in grouped_projects.items():
+        print(data['topics'])
         merged_project = {
             'Project': project_name,
             'Sentiment': sum(data['sentiment']) / len(data['sentiment']) if data['sentiment'] else None,
