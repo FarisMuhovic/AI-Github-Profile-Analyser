@@ -54,4 +54,4 @@ Replace `<github-username>` with the GitHub profile you want to analyze.
 
 ## Research Paper
 
-For detailed research and methodology, please refer to our research paper available in the root directory: **[Research_Paper.pdf](Research_Paper.pdf)**.
+For detailed research and methodology, please refer to our research paper available in the root directory: **[Research_Paper.pdf](Research_paper.pdf)**.
